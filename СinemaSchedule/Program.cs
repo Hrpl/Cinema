@@ -1,14 +1,15 @@
+using СinemaSchedule.Domen.Options;
 using СinemaSchedule.Extensions;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
+builder.Services.Configure<WorkTimeOptions>(builder.Configuration);
 
 builder.AddOpenAPI();
-
-
 builder.InitializeDatabase(builder.Configuration);
 
 var app = builder.Build();
