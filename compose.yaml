@@ -1,0 +1,7 @@
+﻿services:
+  сinemascheduleinemaschedule:
+    image: сinemascheduleinemaschedule
+    build:
+      context: .
+      dockerfile: СinemaSchedule/Dockerfile
+

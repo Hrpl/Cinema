@@ -1,0 +1,21 @@
+namespace СinemaSchedule.Domen;
+
+public class SessionEntity : BaseEntity
+{
+    public int MovieId { get; set; }
+    public MovieEntity Movie { get; set; }
+    
+    public int HallId { get; set; }
+    public HallEntity Hall { get; set; } 
+    
+    public DateTime StartTime { get; set; }
+    
+    public decimal BasePrice { get; set; }
+    
+    public bool IsActive { get; set; } = false;
+    
+    public DateTime ActiveFromDate { get; set; }
+    
+    public int DurationDays { get; set; } = 1;
+    
+}
