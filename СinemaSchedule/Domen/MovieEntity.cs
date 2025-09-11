@@ -9,4 +9,5 @@ public class MovieEntity : BaseEntity
     public List<MovieGenreEntity> MovieGenreEntities { get; set; } = new();
     
     public string? Poster { get; set; }
+    public bool IsInRelease { get; set; }
 }
