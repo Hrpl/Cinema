@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using СinemaSchedule.Infrastructure;
@@ -11,9 +12,11 @@ using СinemaSchedule.Infrastructure;
 namespace СinemaSchedule.Migrations
 {
     [DbContext(typeof(CinemaSheduleAppContext))]
-    partial class CinemaSheduleAppContextModelSnapshot : ModelSnapshot
+    [Migration("20250911105206_EditRelationAndLabel")]
+    partial class EditRelationAndLabel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -6,7 +6,8 @@ public class SessionEntity : BaseEntity
     public MovieEntity Movie { get; set; }
     
     public int HallId { get; set; }
-    public HallEntity Hall { get; set; } 
+    public HallEntity Hall { get; set; }
+    public List<SessionPriceOverrideEntity> PriceOverride { get; set; } = new();
     
     public DateTime StartTime { get; set; }
     

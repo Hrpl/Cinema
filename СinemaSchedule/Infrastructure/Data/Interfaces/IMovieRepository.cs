@@ -1,11 +1,11 @@
-using СinemaSchedule.Dto.Movie;
-
+using СinemaSchedule.Domen;
 namespace СinemaSchedule.Infrastructure.Data.Interfaces;
 
 public interface IMovieRepository
 {
-    Task<IEnumerable<MovieResponseDto>> GetAllMoviesAsync();
-    Task<MovieResponseDto?> GetMovieByIdAsync(int id);
-    Task<int> CreateMovieAsync(CreateMovieDto dto);
-    Task<bool> RemoveMovieFromReleaseAsync(int movieId);
+    Task<MovieEntity?> GetByIdAsync(int id);
+    Task<IEnumerable<MovieEntity>> GetAllAsync();
+    Task AddAsync(MovieEntity movie);
+    Task UpdateAsync(MovieEntity movie);
+    Task RemoveFromReleaseAsync(int movieId);
 }

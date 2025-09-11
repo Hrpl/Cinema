@@ -2,9 +2,10 @@ namespace СinemaSchedule.Domen;
 
 public class MovieEntity : BaseEntity
 {
+    public string Title { get; set; }
     public short ReleaseYear { get; set; }
     public short Duration { get; set; } // в минутах
-    public byte AgeLimit { get; set; }
+    public string AgeLimit { get; set; }
     
     public List<MovieGenreEntity> MovieGenreEntities { get; set; } = new();
     

@@ -8,8 +8,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
 builder.Services.Configure<WorkTimeOptions>(builder.Configuration);
+builder.Services.AddRepositories();
 
 builder.AddOpenAPI();
+
 builder.InitializeDatabase(builder.Configuration);
 
 var app = builder.Build();
