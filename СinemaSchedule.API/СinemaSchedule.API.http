@@ -1,0 +1,6 @@
+@СinemaSchedule.API_HostAddress = http://localhost:5190
+
+GET {{СinemaSchedule.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

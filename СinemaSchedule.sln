@@ -1,11 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "СinemaSchedule", "СinemaSchedule\СinemaSchedule.csproj", "{611CD3BE-C045-4ED7-800C-565211E03FF3}"
-EndProject
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36121.58 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A3547903-348B-4744-8E65-3B6D99F098C0}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "СinemaSchedule.API", "СinemaSchedule.API\СinemaSchedule.API.csproj", "{B655E4A7-244E-435A-9DCA-A26C584F5222}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "СinemaSchedule.Domen", "СinemaSchedule.Domen\СinemaSchedule.Domen.csproj", "{8644D637-D111-429E-9DD2-66663815BC7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "СinemaSchedule.Infrastructure", "СinemaSchedule.Infrastructure\СinemaSchedule.Infrastructure.csproj", "{02D3A9FF-8E6E-4DE9-BA63-953CE5E45B46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "СinemaSchedule.Application", "СinemaSchedule.Application\СinemaSchedule.Application.csproj", "{D202E6EC-2BA2-417B-BA40-A91A3067A007}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,9 +22,24 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{611CD3BE-C045-4ED7-800C-565211E03FF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{611CD3BE-C045-4ED7-800C-565211E03FF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{611CD3BE-C045-4ED7-800C-565211E03FF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{611CD3BE-C045-4ED7-800C-565211E03FF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B655E4A7-244E-435A-9DCA-A26C584F5222}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B655E4A7-244E-435A-9DCA-A26C584F5222}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B655E4A7-244E-435A-9DCA-A26C584F5222}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B655E4A7-244E-435A-9DCA-A26C584F5222}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8644D637-D111-429E-9DD2-66663815BC7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8644D637-D111-429E-9DD2-66663815BC7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8644D637-D111-429E-9DD2-66663815BC7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8644D637-D111-429E-9DD2-66663815BC7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02D3A9FF-8E6E-4DE9-BA63-953CE5E45B46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02D3A9FF-8E6E-4DE9-BA63-953CE5E45B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02D3A9FF-8E6E-4DE9-BA63-953CE5E45B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02D3A9FF-8E6E-4DE9-BA63-953CE5E45B46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D202E6EC-2BA2-417B-BA40-A91A3067A007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D202E6EC-2BA2-417B-BA40-A91A3067A007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D202E6EC-2BA2-417B-BA40-A91A3067A007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D202E6EC-2BA2-417B-BA40-A91A3067A007}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

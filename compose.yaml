@@ -5,3 +5,9 @@
       context: .
       dockerfile: СinemaSchedule/Dockerfile
 
+  сinemaschedule.apiinemaschedule.api:
+    image: сinemaschedule.apiinemaschedule.api
+    build:
+      context: .
+      dockerfile: СinemaSchedule.API/Dockerfile
+

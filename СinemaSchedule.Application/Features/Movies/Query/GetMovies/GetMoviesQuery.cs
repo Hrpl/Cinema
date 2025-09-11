@@ -1,0 +1,18 @@
+using MediatR;
+using СinemaSchedule.Domen.Dto;
+
+namespace СinemaSchedule.Application.Features.Movies.Query.GetMovies;
+
+public class GetMoviesQuery : IRequest<List<MovieDto>>
+{
+    public string? SearchTerm { get; set; }
+    public List<int>? GenreIds { get; set; }
+    public int? MinYear { get; set; }
+    public int? MaxYear { get; set; }
+    public int? MinAgeRestriction { get; set; }
+    public int? MaxAgeRestriction { get; set; }
+    public int? MinDuration { get; set; }
+    public int? MaxDuration { get; set; }
+    public decimal? MaxPrice { get; set; }
+    public bool? ActiveOnly { get; set; } = true;
+}
