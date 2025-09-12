@@ -13,8 +13,12 @@ builder.Services.AddCors();
 builder.Services.Configure<WorkTimeOptions>(builder.Configuration);
 builder.Services.AddInfrastructure();
 builder.Services.AddApplication();
+builder.Services.AddControllers();
 
 builder.AddOpenAPI();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.InitializeDatabase(builder.Configuration);
 
@@ -30,5 +34,6 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
+app.MapControllers();
 
 app.Run();

@@ -22,25 +22,29 @@ public class MovieRepository : IMovieRepository
             .FirstOrDefaultAsync(m => m.Id == id);
     }
 
-    public async Task<IEnumerable<MovieEntity>> GetAllAsync(bool IsActive)
+    public async Task<IEnumerable<MovieEntity>> GetAllAsync(bool isActive)
     {
         var request = _context.Movie
             .Include(m => m.MovieGenreEntities)
             .ThenInclude(mg => mg.Genre)
             .OrderBy(m => m.Title);
         
-        if (IsActive) request.Where(m => m.IsInRelease == true);
+        if (isActive) request.Where(m => m.IsInRelease == true);
         
         return await request.ToListAsync();
     }
 
-    public async Task AddAsync(MovieEntity movie)
+    public async Task<MovieEntity> AddAsync(MovieEntity movie)
     {
         await _context.Movie.AddAsync(movie);
+        await _context.SaveChangesAsync();
+        return movie;
     }
 
-    public async Task UpdateAsync(MovieEntity movie)
+    //TODO: решить с асинком
+    public async Task<MovieEntity> UpdateAsync(MovieEntity movie)
     {
         _context.Movie.Update(movie);
+        return movie;
     }
 }

@@ -4,7 +4,7 @@ namespace СinemaSchedule.Domen.Interfaces;
 public interface IMovieRepository
 {
     Task<MovieEntity?> GetByIdAsync(int id);
-    Task<IEnumerable<MovieEntity>> GetAllAsync(bool IsActive);
-    Task AddAsync(MovieEntity movie);
-    Task UpdateAsync(MovieEntity movie);
+    Task<IEnumerable<MovieEntity>> GetAllAsync(bool isActive);
+    Task<MovieEntity> AddAsync(MovieEntity movie);
+    Task<MovieEntity> UpdateAsync(MovieEntity movie);
 }

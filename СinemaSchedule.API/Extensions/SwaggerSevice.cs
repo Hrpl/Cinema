@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.OpenApi.Models;
 
 namespace СinemaSchedule.Extensions;
@@ -8,9 +9,16 @@ public static class SwaggerSevice
     {
         builder.Services.AddSwaggerGen(c =>
         {
-            c.EnableAnnotations();
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Monosort", Version = "v2024" });
+            /*var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             
+            c.IncludeXmlComments(xmlPath);
+            c.UseAllOfToExtendReferenceSchemas();*/
+            
+            c.EnableAnnotations();
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cinema", Version = "v1" });
+
+            c.EnableAnnotations();
         });
 
     }
