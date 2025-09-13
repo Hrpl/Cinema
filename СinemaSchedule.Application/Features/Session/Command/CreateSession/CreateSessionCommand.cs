@@ -1,12 +1,7 @@
 using MediatR;
+using СinemaSchedule.Domen.Entities;
+using СinemaSchedule.Domen.Generic;
 
 namespace СinemaSchedule.Application.Features.Session.Command.CreateSession;
 
-public class CreateSessionCommand : IRequest<int>
-{
-    public int MovieId { get; set; }
-    public int HallId { get; set; }
-    public DateTime StartTime { get; set; }
-    public decimal BasePrice { get; set; }
-    public DateTime? ActivationDate { get; set; }
-}
+public record CreateSessionCommand(CreateSessionDto dto) : IRequest<MbResult<SessionEntity>>;

@@ -1,64 +1,80 @@
 using System.ComponentModel.DataAnnotations;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using СinemaSchedule.Domen.Entities;
 using СinemaSchedule.Domen.Entities.Options;
+using СinemaSchedule.Domen.Generic;
 using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.Session.Command.CreateSession;
 
-public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand, int>
+public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand, MbResult<SessionEntity>>
 {
     private readonly ISessionRepository _sessionRepository;
     private readonly IMovieRepository _movieRepository;
     private readonly IHallRepository _hallRepository;
     private readonly WorkTimeOptions _options;
+    private readonly ILogger<CreateSessionCommandHandler> _logger;
 
     public CreateSessionCommandHandler(ISessionRepository sessionRepository, IMovieRepository movieRepository,
-        IHallRepository hallRepository,IOptions<WorkTimeOptions> options)
+        IHallRepository hallRepository,IOptions<WorkTimeOptions> options, ILogger<CreateSessionCommandHandler> logger)
     {
         _sessionRepository = sessionRepository;
         _movieRepository = movieRepository;
         _hallRepository = hallRepository;
         _options = options.Value;
+        _logger = logger;
     }
 
-    public async Task<int> Handle(CreateSessionCommand request, CancellationToken cancellationToken)
+    public async Task<MbResult<SessionEntity>> Handle(CreateSessionCommand request, CancellationToken cancellationToken)
     {
-        var movie = await _movieRepository.GetByIdAsync(request.MovieId);
+        var movie = await _movieRepository.GetByIdAsync(request.dto.MovieId);
         if (movie == null || !movie.IsInRelease)
-            throw new ValidationException("Movie not found or inactive");
+        {
+            _logger.LogError("Фильм не найден");
+            return MbResult<SessionEntity>.Failure("Фильм не найден");
+        }
 
-        var hall = await _hallRepository.GetByIdAsync(request.HallId);
+        var hall = await _hallRepository.GetByIdAsync(request.dto.HallId);
         if (hall == null)
-            throw new ValidationException("Hall not found");
-
-        //var settings = await _settingsRepository.GetSettingsAsync();
+        {
+            _logger.LogError("Зал не найден");
+            return MbResult<SessionEntity>.Failure("Зал не найден");
+        }
         
         // Check cinema working hours
-        var startTime = request.StartTime.TimeOfDay;
-        if (startTime < TimeSpan.Parse(_options.OpeningTime) || startTime > TimeSpan.Parse(_options.ClosingTime).Add(TimeSpan.FromMinutes(-movie.Duration)))
-            throw new ValidationException("Session time is outside cinema working hours");
-
+        var startTime = request.dto.StartTime.TimeOfDay;
+        if (startTime < TimeSpan.Parse(_options.OpeningTime) ||
+            startTime > TimeSpan.Parse(_options.ClosingTime).Add(TimeSpan.FromMinutes(-movie.Duration)))
+        {
+            _logger.LogError("Время начала сеанса в нерабочем времене кинотеатра");
+            return MbResult<SessionEntity>.Failure("Время начала сеанса в нерабочем времене кинотеатра");
+        }
+        _logger.LogWarning($"Open start: {_options.OpeningTime}, Closing: {_options.ClosingTime}");
         // Check for overlapping sessions
-        var sessionEndTime = request.StartTime.AddMinutes(movie.Duration + hall.TechnicalBreakDuration);
+        var sessionEndTime = request.dto.StartTime.AddMinutes(movie.Duration + hall.TechnicalBreakDuration);
         var overlappingSessions = await _sessionRepository.GetOverlappingSessionsAsync(
-            request.HallId, request.StartTime, sessionEndTime);
+            request.dto.HallId, request.dto.StartTime, sessionEndTime);
 
         if (overlappingSessions.Any(s => s.IsActive))
-            throw new ValidationException("Session overlaps with existing active session");
+        {
+            _logger.LogError("Сеанс пересекается с существующим активным сеансом");
+            return MbResult<SessionEntity>.Failure("Сеанс пересекается с существующим активным сеансом");
+        }
 
         var session = new SessionEntity
         {
-            MovieId = request.MovieId,
-            HallId = request.HallId,
-            StartTime = request.StartTime,
-            BasePrice = request.BasePrice,
-            IsActive = request.ActivationDate == null || request.ActivationDate <= DateTime.Now,
-            ActiveFromDate = request.ActivationDate
+            MovieId = request.dto.MovieId,
+            HallId = request.dto.HallId,
+            StartTime = request.dto.StartTime,
+            BasePrice = request.dto.BasePrice,
+            IsActive = request.dto.ActiveFromDate == null || request.dto.ActiveFromDate <= DateTime.Now,
+            ActiveFromDate = request.dto.ActiveFromDate
         };
-
+        
+        _logger.LogInformation("Создание сессии");
         await _sessionRepository.AddAsync(session);
-        return session.Id;
+        return MbResult<SessionEntity>.Success(session);
     }
 }

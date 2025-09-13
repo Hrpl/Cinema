@@ -8,6 +8,8 @@ using СinemaSchedule.Application.Features.SessionPriceOverride.Query.GetByIdPri
 
 namespace СinemaSchedule.API.Controllers;
 
+[ApiController]
+[Route("api/override/prices")]
 public class PriceOverrideController : Controller
 {
     private readonly IMediator _mediator;

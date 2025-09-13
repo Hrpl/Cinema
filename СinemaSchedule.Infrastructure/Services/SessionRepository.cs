@@ -226,6 +226,7 @@ public class SessionRepository : ISessionRepository
         public async Task AddAsync(SessionEntity session)
         {
             await _context.Session.AddAsync(session);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(SessionEntity session)
