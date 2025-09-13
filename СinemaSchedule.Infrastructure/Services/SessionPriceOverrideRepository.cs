@@ -20,13 +20,13 @@ public class SessionPriceOverrideRepository : ISessionPriceOverrideRepository
         return discount;
     }
 
-    public async Task RemoveAsync(int id)
+    public async Task<SessionPriceOverrideEntity> RemoveAsync(int id)
     {
         var session = await GetByIdAsync(id);
-        if (session != null)
-        {
-            _context.SessionPriceOverride.Remove(session);
-        }
+        if (session == null) throw new KeyNotFoundException();
+        _context.SessionPriceOverride.Remove(session);
+        await _context.SaveChangesAsync();
+        return session;
     }
     
     public async Task<SessionPriceOverrideEntity?> GetByIdAsync(int id)

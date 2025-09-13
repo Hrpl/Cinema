@@ -19,9 +19,9 @@ public class HallController : Controller
     [SwaggerOperation(
         Tags = new[] {"Hall"},
         Summary = "Создание нового зала",
-        Description = "Возвращает id созданного аккаунта"
+        Description = ""
     )]
-    public async Task<IActionResult> CreateMovie([FromBody] CreateHallDto dto)
+    public async Task<IActionResult> CreateHall([FromBody] CreateHallDto dto)
     {
         var request = new CreateHallCommand(dto);
         var result = await _mediator.Send(request);
