@@ -1,7 +1,7 @@
+using MediatR;
+using СinemaSchedule.Domen.Entities;
+using СinemaSchedule.Domen.Generic;
+
 namespace СinemaSchedule.Application.Features.Discount.Command.CreateDiscount;
 
-public class CreateDiscountCommand
-{
-    public decimal Percentage { get; set; }
-    public DateTime EffectiveDate { get; set; }
-}
+public record CreateDiscountCommand(CreateDiscountDto dto) : IRequest<MbResult<DiscountEntity>>;
