@@ -52,7 +52,16 @@ public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, MbR
             movie.MovieGenreEntities.Add(new MovieGenreEntity() { GenreId = genreId });
         }
 
-        await _movieRepository.AddAsync(movie);
-        return MbResult<MovieEntity>.Success(movie);
+        try
+        {
+            await _movieRepository.AddAsync(movie);
+            _logger.LogInformation("Создание записи о новом фильме");
+            return MbResult<MovieEntity>.Success(movie);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Ошибка при создании нового фильма ex: {ex.Message}");
+            return MbResult<MovieEntity>.Failure("Ошибка при создании нового фильма");
+        }
     }
 }

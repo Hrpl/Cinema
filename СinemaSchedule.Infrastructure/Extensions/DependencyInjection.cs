@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using СinemaSchedule.Domen.Interfaces;
-using СinemaSchedule.Infrastructure.Data.Services;
+using СinemaSchedule.Infrastructure.Services;
 
 namespace СinemaSchedule.Infrastructure.Extensions;
 
@@ -14,5 +14,6 @@ public static class DependencyInjection
         services.AddScoped<IHallRepository, HallRepository>();
         services.AddScoped<IMovieRepository, MovieRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
+        services.AddScoped<ISessionPriceOverrideRepository, SessionPriceOverrideRepository>();
     }
 }

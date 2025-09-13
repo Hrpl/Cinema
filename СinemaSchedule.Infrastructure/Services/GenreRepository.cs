@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using СinemaSchedule.Domen.Entities;
 using СinemaSchedule.Domen.Interfaces;
 
-namespace СinemaSchedule.Infrastructure.Data.Services;
+namespace СinemaSchedule.Infrastructure.Services;
 
 public class GenreRepository : IGenreRepository
 {

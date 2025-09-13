@@ -3,7 +3,7 @@ using СinemaSchedule.Domen;
 using СinemaSchedule.Domen.Entities;
 using СinemaSchedule.Domen.Interfaces;
 
-namespace СinemaSchedule.Infrastructure.Data.Services;
+namespace СinemaSchedule.Infrastructure.Services;
 public class SessionRepository : ISessionRepository
     {
         private readonly CinemaSheduleAppContext _context;
@@ -279,10 +279,5 @@ public class SessionRepository : ISessionRepository
                            s.ActiveFromDate.HasValue && 
                            s.ActiveFromDate <= DateTime.Now)
                 .ToListAsync();
-        }
-
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            return await _context.SaveChangesAsync(cancellationToken);
         }
     }
