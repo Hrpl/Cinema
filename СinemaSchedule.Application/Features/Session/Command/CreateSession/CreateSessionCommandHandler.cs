@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using СinemaSchedule.Domen.Entities;
-using СinemaSchedule.Domen.Entities.Options;
+using СinemaSchedule.Domen.Options;
 using СinemaSchedule.Domen.Generic;
 using СinemaSchedule.Domen.Interfaces;
 

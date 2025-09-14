@@ -1,7 +1,7 @@
+using СinemaSchedule.API.Middlewares;
 using СinemaSchedule.Extensions;
-using Microsoft.Extensions.Options;
 using СinemaSchedule.Application.Extensions;
-using СinemaSchedule.Domen.Entities.Options;
+using СinemaSchedule.Domen.Options;
 using СinemaSchedule.Infrastructure.Extensions;
 
 
@@ -33,7 +33,7 @@ app.UseCors(x => x
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowAnyOrigin());
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 

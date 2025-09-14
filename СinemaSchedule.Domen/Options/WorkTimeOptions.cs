@@ -1,4 +1,4 @@
-namespace СinemaSchedule.Domen.Entities.Options;
+namespace СinemaSchedule.Domen.Options;
 
 public class WorkTimeOptions
 {

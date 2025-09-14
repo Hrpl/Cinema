@@ -1,9 +1,4 @@
 ﻿services:
-  сinemascheduleinemaschedule:
-    image: сinemascheduleinemaschedule
-    build:
-      context: .
-      dockerfile: СinemaSchedule/Dockerfile
 
   сinemaschedule.apiinemaschedule.api:
     image: сinemaschedule.apiinemaschedule.api

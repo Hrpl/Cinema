@@ -61,7 +61,7 @@ public class PriceOverrideController : Controller
     )]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> DeactivateMovie([FromQuery] int movieId)
+    public async Task<ActionResult> DeletePriceOverride([FromQuery] int movieId)
     {
         var request = new RemovePriceOverrideCommand(movieId);
         var result = await _mediator.Send(request);
