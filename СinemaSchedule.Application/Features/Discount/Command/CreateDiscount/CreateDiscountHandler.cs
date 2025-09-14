@@ -6,7 +6,7 @@ using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.Discount.Command.CreateDiscount;
 
-public class CreateDiscountHandler : IRequestHandler<CreateDiscountCommand, MbResult<DiscountEntity>>
+public class CreateDiscountHandler : IRequestHandler<CreateDiscountCommand, CustomResult<DiscountEntity>>
 {
     private readonly IDiscountRepository _repository;
     private readonly IMapper _mapper;
@@ -19,21 +19,21 @@ public class CreateDiscountHandler : IRequestHandler<CreateDiscountCommand, MbRe
         _mapper = mapper;
     }
     
-    public async Task<MbResult<DiscountEntity>> Handle(CreateDiscountCommand request,
+    public async Task<CustomResult<DiscountEntity>> Handle(CreateDiscountCommand request,
         CancellationToken cancellationToken)
     {
-        DiscountEntity discount = _mapper.Map<DiscountEntity>(request);
+        DiscountEntity discount = _mapper.Map<DiscountEntity>(request.dto);
 
         try
         {
             await _repository.AddAsync(discount);
             _logger.LogInformation("Создание скидки");
-            return MbResult<DiscountEntity>.Success(discount);
+            return CustomResult<DiscountEntity>.Success(discount);
         }
         catch (Exception ex)
         {
             _logger.LogError($"Ошибка при создании скидки ex: {ex.Message}");
-            return MbResult<DiscountEntity>.Failure("Ошибка при создании скидки");
+            return CustomResult<DiscountEntity>.Failure("Ошибка при создании скидки");
         }
     }
 }

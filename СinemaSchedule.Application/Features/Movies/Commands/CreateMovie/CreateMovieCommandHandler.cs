@@ -8,7 +8,7 @@ using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.Movies.Commands.CreateMovie;
 
-public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, MbResult<MovieEntity>>
+public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, CustomResult<MovieEntity>>
 {
     private readonly IMovieRepository _movieRepository;
     private readonly IGenreRepository _genreRepository;
@@ -24,7 +24,7 @@ public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, MbR
         _logger = logger;
     }
 
-    public async Task<MbResult<MovieEntity>> Handle(CreateMovieCommand request, CancellationToken cancellationToken)
+    public async Task<CustomResult<MovieEntity>> Handle(CreateMovieCommand request, CancellationToken cancellationToken)
     {
         var genres = await _genreRepository.GetAllAsync();
         _logger.LogInformation("Получение всех жанров");
@@ -34,7 +34,7 @@ public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, MbR
         if (request.dto.GenreIds.Any(genreId => !validGenreIds.Contains(genreId)))
         {
             _logger.LogError($"Невеверные Id жанров {request.dto.GenreIds}");
-            return MbResult<MovieEntity>.Failure("Невеверные Id жанров");
+            return CustomResult<MovieEntity>.Failure("Невеверные Id жанров");
         }
 
         var movie = new MovieEntity()
@@ -56,12 +56,12 @@ public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, MbR
         {
             await _movieRepository.AddAsync(movie);
             _logger.LogInformation("Создание записи о новом фильме");
-            return MbResult<MovieEntity>.Success(movie);
+            return CustomResult<MovieEntity>.Success(movie);
         }
         catch (Exception ex)
         {
             _logger.LogError($"Ошибка при создании нового фильма ex: {ex.Message}");
-            return MbResult<MovieEntity>.Failure("Ошибка при создании нового фильма");
+            return CustomResult<MovieEntity>.Failure("Ошибка при создании нового фильма");
         }
     }
 }

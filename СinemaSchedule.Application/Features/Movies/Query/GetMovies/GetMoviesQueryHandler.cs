@@ -1,12 +1,13 @@
 using MapsterMapper;
 using MediatR;
 using СinemaSchedule.Domen.Dto;
+using СinemaSchedule.Domen.Generic;
 using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.Movies.Query.GetMovies;
 
 //TODO:
-public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, List<MovieDto>>
+public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, CustomResult<List<MovieDto>>>
 {
     private readonly IMovieRepository _movieRepository;
     private readonly ISessionRepository _sessionRepository;
@@ -22,27 +23,25 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, List<MovieD
         _mapper = mapper;
     }
 
-    public async Task<List<MovieDto>> Handle(GetMoviesQuery request, CancellationToken cancellationToken)
+    public async Task<CustomResult<List<MovieDto>>> Handle(GetMoviesQuery request, CancellationToken cancellationToken)
     {
-        var movies = request.ActiveOnly == true
+        var movies = request.Dto.ActiveOnly == true
             ? await _movieRepository.GetAllAsync(true)
             : await _movieRepository.GetAllAsync(false);
 
-        // Apply filters
         var filteredMovies = movies.AsQueryable();
 
-        if (!string.IsNullOrEmpty(request.SearchTerm))
-            filteredMovies = filteredMovies.Where(m => m.Title.Contains(request.SearchTerm));
+        if (!string.IsNullOrEmpty(request.Dto.SearchTerm))
+            filteredMovies = filteredMovies.Where(m => m.Title.Contains(request.Dto.SearchTerm));
 
-        if (request.GenreIds?.Any() == true)
-            filteredMovies = filteredMovies.Where(m => m.MovieGenreEntities.Any(mg => request.GenreIds.Contains(mg.GenreId)));
+        if (request.Dto.GenreIds?.Any() == true)
+            filteredMovies = filteredMovies.Where(m => m.MovieGenreEntities.Any(mg => request.Dto.GenreIds.Contains(mg.GenreId)));
 
-        if (request.MinYear.HasValue)
-            filteredMovies = filteredMovies.Where(m => m.ReleaseYear >= request.MinYear.Value);
-        if (request.MaxYear.HasValue)
-            filteredMovies = filteredMovies.Where(m => m.ReleaseYear <= request.MaxYear.Value);
+        if (request.Dto.MinYear.HasValue)
+            filteredMovies = filteredMovies.Where(m => m.ReleaseYear >= request.Dto.MinYear.Value);
+        if (request.Dto.MaxYear.HasValue)
+            filteredMovies = filteredMovies.Where(m => m.ReleaseYear <= request.Dto.MaxYear.Value);
 
-        // ... other filters
 
         var result = new List<MovieDto>();
         foreach (var movie in filteredMovies.ToList())
@@ -50,7 +49,6 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, List<MovieD
             var dto = _mapper.Map<MovieDto>(movie);
             dto.Genres = movie.MovieGenreEntities.Select(mg => mg.Genre.Name).ToList();
 
-            // Find next session
             var sessions = await _sessionRepository.GetByMovieIdAsync(movie.Id);
             var nextSession = sessions.Where(s => s.IsActive && s.StartTime > DateTime.Now)
                 .OrderBy(s => s.StartTime)
@@ -60,6 +58,6 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, List<MovieD
             result.Add(dto);
         }
 
-        return result;
+        return CustomResult<List<MovieDto>>.Success(result); 
     }
 }

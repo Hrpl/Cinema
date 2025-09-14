@@ -4,4 +4,4 @@ using СinemaSchedule.Domen.Generic;
 
 namespace СinemaSchedule.Application.Features.SessionPriceOverride.Query.GetByIdPriceOverride;
 
-public record GetByIdPriceOverrideQuery(int Id) : IRequest<MbResult<SessionPriceOverrideDto>>;
+public record GetByIdPriceOverrideQuery(int Id) : IRequest<CustomResult<SessionPriceOverrideDto>>;

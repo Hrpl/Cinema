@@ -21,7 +21,10 @@ public class DiscountController : Controller
     [SwaggerOperation(
         Tags = new[] {"Discount"},
         Summary = "Создание скидки"
+        
     )]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> CreateSessionPriceOverride([FromBody] CreateDiscountDto dto)
     {
         var request = new CreateDiscountCommand(dto);

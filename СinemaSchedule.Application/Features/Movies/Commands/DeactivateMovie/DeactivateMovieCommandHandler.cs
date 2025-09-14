@@ -5,7 +5,7 @@ using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.Movies.Commands.DeactivateMovie;
 
-public class DeactivateMovieCommandHandler : IRequestHandler<DeactivateMovieCommand, MbResult<Unit>>
+public class DeactivateMovieCommandHandler : IRequestHandler<DeactivateMovieCommand, CustomResult<Unit>>
 {
     private readonly IMovieRepository _movieRepository;
     private readonly ISessionRepository _sessionRepository;
@@ -21,7 +21,7 @@ public class DeactivateMovieCommandHandler : IRequestHandler<DeactivateMovieComm
         _logger = logger;
     }
 
-    public async Task<MbResult<Unit>> Handle(DeactivateMovieCommand request, CancellationToken cancellationToken)
+    public async Task<CustomResult<Unit>> Handle(DeactivateMovieCommand request, CancellationToken cancellationToken)
     {
         var movie = await _movieRepository.GetByIdAsync(request.MovieId);
 
@@ -29,7 +29,7 @@ public class DeactivateMovieCommandHandler : IRequestHandler<DeactivateMovieComm
         {
             //TODO: переделать сообщение в logger
             _logger.LogError($"Фильма с ID {request.MovieId} не найдено");
-            return MbResult<Unit>.Failure($"Фильма с ID {request.MovieId} не найдено");
+            return CustomResult<Unit>.Failure($"Фильма с ID {request.MovieId} не найдено");
         }
 
         movie.IsInRelease = false;
@@ -43,6 +43,6 @@ public class DeactivateMovieCommandHandler : IRequestHandler<DeactivateMovieComm
             await _sessionRepository.UpdateAsync(session);
         }
 
-        return MbResult<Unit>.Success(Unit.Value);
+        return CustomResult<Unit>.Success(Unit.Value);
     }
 }

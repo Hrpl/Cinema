@@ -6,7 +6,7 @@ using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.SessionPriceOverride.Command;
 
-public class CreatePriceOverrideHandler : IRequestHandler<CreatePriceOverrideCommand, MbResult<SessionPriceOverrideEntity>>
+public class CreatePriceOverrideHandler : IRequestHandler<CreatePriceOverrideCommand, CustomResult<SessionPriceOverrideEntity>>
 {
     private readonly ISessionPriceOverrideRepository _priceOverrideRepository;
     private readonly ILogger<CreatePriceOverrideHandler> _logger;
@@ -19,7 +19,7 @@ public class CreatePriceOverrideHandler : IRequestHandler<CreatePriceOverrideCom
         _logger = logger;
     }
 
-    public async Task<MbResult<SessionPriceOverrideEntity>> Handle(CreatePriceOverrideCommand request, CancellationToken cancellationToken)
+    public async Task<CustomResult<SessionPriceOverrideEntity>> Handle(CreatePriceOverrideCommand request, CancellationToken cancellationToken)
     {
         //TODO: проверка на наличие сеанса
         var priceOverride = new SessionPriceOverrideEntity()
@@ -33,12 +33,12 @@ public class CreatePriceOverrideHandler : IRequestHandler<CreatePriceOverrideCom
         {
             await _priceOverrideRepository.AddAsync(priceOverride);
             _logger.LogInformation("Создание записи о изменении цены");
-            return MbResult<SessionPriceOverrideEntity>.Success(priceOverride);
+            return CustomResult<SessionPriceOverrideEntity>.Success(priceOverride);
         }
         catch (Exception ex)
         {
             _logger.LogError($"Ошибка при создании записи о изменении цены ex: {ex.Message}");
-            return MbResult<SessionPriceOverrideEntity>.Failure("Ошибка при создании записи о изменении цены");
+            return CustomResult<SessionPriceOverrideEntity>.Failure("Ошибка при создании записи о изменении цены");
         }
     }
 }

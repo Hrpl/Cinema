@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using СinemaSchedule.Application.Features.Session.Query.GetSession;
 using СinemaSchedule.Domen;
+using СinemaSchedule.Domen.Dto;
 using СinemaSchedule.Domen.Entities;
 using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Infrastructure.Services;
-public class SessionRepository : ISessionRepository
+public class SessionRepository : ISessionRepository, IGetSessionRepository <GetSessionDto, List<MovieSessionGroup>>
     {
         private readonly CinemaSheduleAppContext _context;
 
@@ -13,36 +15,55 @@ public class SessionRepository : ISessionRepository
             _context = context;
         }
 
-        public async Task<SessionEntity?> GetByIdAsync(int id)
+        public async Task<List<MovieSessionGroup>> GetAll(GetSessionDto request)
         {
-            return await _context.Session
+            var query = _context.Session
                 .Include(s => s.Movie)
+                .ThenInclude(m => m.MovieGenreEntities)
+                .ThenInclude(mv => mv.Genre)
                 .Include(s => s.Hall)
                 .Include(s => s.PriceOverride)
-                .FirstOrDefaultAsync(s => s.Id == id);
-        }
+                .Where(s => s.IsActive);
 
-        public async Task<List<SessionEntity>> GetAllAsync()
-        {
-            return await _context.Session
-                .Include(s => s.Movie)
-                .Include(s => s.Hall)
-                .Include(s => s.PriceOverride)
-                .OrderBy(s => s.StartTime)
-                .ToListAsync();
-        }
+            // Apply date filtering
+            query = ApplyDateFilter(query, request);
 
-        public async Task<List<SessionEntity>> GetActiveAsync()
-        {
-            return await _context.Session
-                .Include(s => s.Movie)
-                .Include(s => s.Hall)
-                .Include(s => s.PriceOverride)
-                .Where(s => s.IsActive && 
-                           (s.ActiveFromDate == null || s.ActiveFromDate <= DateTime.Now) &&
-                           s.StartTime > DateTime.Now)
-                .OrderBy(s => s.StartTime)
-                .ToListAsync();
+            // Apply other filters
+            query = ApplyFilters(query, request);
+
+            var sessions = await query.ToListAsync();
+
+            // Group by movie and order
+            var groupedSessions = sessions
+                .GroupBy(s => s.Movie)
+                .Select(g => new MovieSessionGroup
+                {
+                    Movie = new MovieDto
+                    {
+                        Id = g.Key.Id,
+                        Title = g.Key.Title,
+                        ReleaseYear = g.Key.ReleaseYear,
+                        AgeLimit = g.Key.AgeLimit,
+                        Duration = g.Key.Duration,
+                        Genres = g.Key.MovieGenreEntities.Select(mg => mg.Genre.Name).ToList()
+                    },
+                    Sessions = g.OrderBy(s => s.StartTime)
+                        .Select(s => new SessionDto
+                        {
+                            Id = s.Id,
+                            MovieId = s.MovieId,
+                            HallId = s.HallId,
+                            HallName = s.Hall.Name,
+                            StartTime = s.StartTime,
+                            Price = GetCurrentPrice(s),
+                            IsActive = s.IsActive
+                        })
+                        .ToList()
+                })
+                .OrderBy(g => g.Sessions.Min(s => s.StartTime))
+                .ToList();
+
+            return groupedSessions;
         }
 
         public async Task<List<SessionEntity>> GetByMovieIdAsync(int movieId)
@@ -56,171 +77,17 @@ public class SessionRepository : ISessionRepository
                 .ToListAsync();
         }
 
-        public async Task<List<SessionEntity>> GetByHallIdAsync(int hallId)
-        {
-            return await _context.Session
-                .Include(s => s.Movie)
-                .Include(s => s.Hall)
-                .Include(s => s.PriceOverride)
-                .Where(s => s.HallId == hallId)
-                .OrderBy(s => s.StartTime)
-                .ToListAsync();
-        }
-
-        public async Task<List<SessionEntity>> GetOverlappingSessionsAsync(int hallId, DateTime startTime, DateTime endTime)
+        public async Task<List<SessionEntity>> GetOverlappingSessionsAsync(int hallId, DateTimeOffset startTime, DateTimeOffset endTime)
         {
             return await _context.Session
                 .Include(s => s.Movie)
                 .Include(s => s.Hall)
                 .Where(s => s.HallId == hallId &&
                            s.IsActive &&
-                           (s.ActiveFromDate == null || s.ActiveFromDate <= DateTime.Now) &&
+                           (s.ActiveFromDate == null || s.ActiveFromDate <= DateTimeOffset.UtcNow) &&
                            s.StartTime < endTime &&
                            s.StartTime.AddMinutes(s.Movie.Duration + s.Hall.TechnicalBreakDuration) > startTime)
                 .ToListAsync();
-        }
-
-        public async Task<List<SessionEntity>> GetSessionsByDateRangeAsync(DateTime startDate, DateTime endDate)
-        {
-            var startDateTime = startDate.Date;
-            var endDateTime = endDate.Date.AddDays(1).AddTicks(-1);
-
-            return await _context.Session
-                .Include(s => s.Movie)
-                .ThenInclude(m => m.MovieGenreEntities)
-                .ThenInclude(mg => mg.Genre)
-                .Include(s => s.Hall)
-                .Include(s => s.PriceOverride)
-                .Where(s => s.StartTime >= startDateTime && 
-                           s.StartTime <= endDateTime &&
-                           s.IsActive &&
-                           (s.ActiveFromDate == null || s.ActiveFromDate <= DateTime.Now))
-                .OrderBy(s => s.StartTime)
-                .ToListAsync();
-        }
-
-        public async Task<List<SessionEntity>> GetSessionsWithFiltersAsync(
-            List<int>? genreIds = null,
-            int? minYear = null,
-            int? maxYear = null,
-            int? minAgeRestriction = null,
-            int? maxAgeRestriction = null,
-            int? minDuration = null,
-            int? maxDuration = null,
-            decimal? maxPrice = null,
-            DateTime? startDate = null,
-            DateTime? endDate = null,
-            List<int>? hallIds = null)
-        {
-            var query = _context.Session
-                .Include(s => s.Movie)
-                .ThenInclude(m => m.MovieGenreEntities)
-                .ThenInclude(mg => mg.Genre)
-                .Include(s => s.Hall)
-                .Include(s => s.PriceOverride)
-                .Where(s => s.IsActive && 
-                           (s.ActiveFromDate == null || s.ActiveFromDate <= DateTime.Now) &&
-                           s.StartTime > DateTime.Now);
-
-            // Apply filters
-            if (genreIds?.Any() == true)
-            {
-                query = query.Where(s => s.Movie.MovieGenreEntities.Any(mg => genreIds.Contains(mg.GenreId)));
-            }
-
-            if (minYear.HasValue)
-            {
-                query = query.Where(s => s.Movie.ReleaseYear >= minYear.Value);
-            }
-
-            if (maxYear.HasValue)
-            {
-                query = query.Where(s => s.Movie.ReleaseYear <= maxYear.Value);
-            }
-
-            if (minAgeRestriction.HasValue)
-            {
-                query = query.Where(s => Convert.ToInt32(s.Movie.AgeLimit) >= minAgeRestriction.Value);
-            }
-
-            if (maxAgeRestriction.HasValue)
-            {
-                query = query.Where(s => Convert.ToInt32(s.Movie.AgeLimit) <= maxAgeRestriction.Value);
-            }
-
-            if (minDuration.HasValue)
-            {
-                query = query.Where(s => s.Movie.Duration >= minDuration.Value);
-            }
-
-            if (maxDuration.HasValue)
-            {
-                query = query.Where(s => s.Movie.Duration <= maxDuration.Value);
-            }
-
-            if (maxPrice.HasValue)
-            {
-                query = query.Where(s => s.BasePrice <= maxPrice.Value);
-            }
-
-            if (startDate.HasValue)
-            {
-                query = query.Where(s => s.StartTime >= startDate.Value);
-            }
-
-            if (endDate.HasValue)
-            {
-                query = query.Where(s => s.StartTime <= endDate.Value);
-            }
-
-            if (hallIds?.Any() == true)
-            {
-                query = query.Where(s => hallIds.Contains(s.HallId));
-            }
-
-            return await query
-                .OrderBy(s => s.StartTime)
-                .ToListAsync();
-        }
-
-        public async Task<SessionEntity?> GetSessionWithCurrentPriceAsync(int sessionId, DateTime date)
-        {
-            return await _context.Session
-                .Include(s => s.Movie)
-                .Include(s => s.Hall)
-                .Include(s => s.PriceOverride
-                    .Where(sp => sp.EffectiveFrom <= date)
-                    .OrderByDescending(sp => sp.EffectiveFrom)
-                    .Take(1))
-                .FirstOrDefaultAsync(s => s.Id == sessionId);
-        }
-
-        public async Task<List<SessionEntity>> GetSessionsWithPricesByDateAsync(DateTime date)
-        {
-            var sessions = await _context.Session
-                .Include(s => s.Movie)
-                .Include(s => s.Hall)
-                .Include(s => s.PriceOverride)
-                .Where(s => s.StartTime.Date == date.Date &&
-                           s.IsActive &&
-                           (s.ActiveFromDate == null || s.ActiveFromDate <= DateTime.Now))
-                .ToListAsync();
-
-            // For each session, get the effective price for the given date
-            foreach (var session in sessions)
-            {
-                var effectivePrice = session.PriceOverride
-                    .Where(sp => sp.EffectiveFrom <= date)
-                    .OrderByDescending(sp => sp.EffectiveFrom)
-                    .FirstOrDefault();
-
-                if (effectivePrice != null)
-                {
-                    session.BasePrice = effectivePrice.NewPrice;
-                }
-            }
-
-            return sessions;
         }
 
         public async Task AddAsync(SessionEntity session)
@@ -233,52 +100,67 @@ public class SessionRepository : ISessionRepository
         {
             _context.Session.Update(session);
         }
-
-        public async Task DeleteAsync(int id)
+        
+        private IQueryable<SessionEntity> ApplyDateFilter(IQueryable<SessionEntity> query, GetSessionDto request)
+    {
+        if (request.SpecificDate.HasValue)
         {
-            var session = await GetByIdAsync(id);
-            if (session != null)
-            {
-                _context.Session.Remove(session);
-            }
+            var date = request.SpecificDate.Value.Date;
+            return query.Where(s => s.StartTime.Date == date);
         }
 
-        public async Task<bool> ExistsAsync(int id)
+        if (request.StartDate.HasValue && request.EndDate.HasValue)
         {
-            return await _context.Session.AnyAsync(s => s.Id == id);
+            var startDate = request.StartDate.Value.Date;
+            var endDate = request.EndDate.Value.Date;
+            return query.Where(s => s.StartTime.Date >= startDate && s.StartTime.Date <= endDate);
         }
 
-        public async Task<bool> IsMovieActiveAsync(int movieId)
-        {
-            return await _context.Movie
-                .AnyAsync(m => m.Id == movieId && m.IsInRelease);
-        }
-
-        public async Task<bool> IsHallAvailableAsync(int hallId, DateTime startTime, DateTime endTime, int? excludeSessionId = null)
-        {
-            var query = _context.Session
-                .Include(s => s.Movie)
-                .Include(s => s.Hall)
-                .Where(s => s.HallId == hallId &&
-                           s.IsActive &&
-                           (s.ActiveFromDate == null || s.ActiveFromDate <= DateTime.Now) &&
-                           s.StartTime < endTime &&
-                           s.StartTime.AddMinutes(s.Movie.Duration + s.Hall.TechnicalBreakDuration) > startTime);
-
-            if (excludeSessionId.HasValue)
-            {
-                query = query.Where(s => s.Id != excludeSessionId.Value);
-            }
-
-            return !await query.AnyAsync();
-        }
-
-        public async Task<List<SessionEntity>> GetSessionsRequiringActivationAsync()
-        {
-            return await _context.Session
-                .Where(s => !s.IsActive && 
-                           s.ActiveFromDate.HasValue && 
-                           s.ActiveFromDate <= DateTime.Now)
-                .ToListAsync();
-        }
+        return query.Where(s => s.StartTime >= DateTime.Today);
     }
+
+    private IQueryable<SessionEntity> ApplyFilters(IQueryable<SessionEntity> query, GetSessionDto request)
+    {
+        if (request.GenreIds != null && request.GenreIds.Any())
+        {
+            query = query.Where(s => s.Movie.MovieGenreEntities.Any(mg => request.GenreIds.Contains(mg.GenreId)));
+        }
+
+        if (request.ReleaseYear.HasValue)
+        {
+            query = query.Where(s => s.Movie.ReleaseYear == request.ReleaseYear.Value);
+        }
+
+        if (request.AgeRestriction.HasValue)
+        {
+            query = query.Where(s => Convert.ToInt32(s.Movie.AgeLimit) == request.AgeRestriction.Value);
+        }
+
+        if (request.MinDuration.HasValue)
+        {
+            query = query.Where(s => s.Movie.Duration >= request.MinDuration.Value);
+        }
+
+        if (request.MaxDuration.HasValue)
+        {
+            query = query.Where(s => s.Movie.Duration <= request.MaxDuration.Value);
+        }
+
+        if (request.HallIds != null && request.HallIds.Any())
+        {
+            query = query.Where(s => request.HallIds.Contains(s.HallId));
+        }
+
+        return query;
+    }
+
+    private decimal GetCurrentPrice(SessionEntity session)
+    {
+        var currentPriceOverride = session.PriceOverride
+            .Where(po => po.EffectiveFrom <= DateTime.Now)
+            .OrderByDescending(po => po.EffectiveFrom)
+            .FirstOrDefault();
+
+        return currentPriceOverride?.NewPrice ?? session.BasePrice;
+    }
+}

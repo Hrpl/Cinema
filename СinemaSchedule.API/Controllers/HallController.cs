@@ -23,6 +23,8 @@ public class HallController : Controller
         Summary = "Создание нового зала",
         Description = ""
     )]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateHall([FromBody] CreateHallDto dto)
     {
         var request = new CreateHallCommand(dto);

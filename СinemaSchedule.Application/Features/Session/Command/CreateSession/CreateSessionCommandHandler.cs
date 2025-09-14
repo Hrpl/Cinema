@@ -9,7 +9,7 @@ using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.Session.Command.CreateSession;
 
-public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand, MbResult<SessionEntity>>
+public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand, CustomResult<SessionEntity>>
 {
     private readonly ISessionRepository _sessionRepository;
     private readonly IMovieRepository _movieRepository;
@@ -27,31 +27,32 @@ public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand,
         _logger = logger;
     }
 
-    public async Task<MbResult<SessionEntity>> Handle(CreateSessionCommand request, CancellationToken cancellationToken)
+    public async Task<CustomResult<SessionEntity>> Handle(CreateSessionCommand request, CancellationToken cancellationToken)
     {
         var movie = await _movieRepository.GetByIdAsync(request.dto.MovieId);
         if (movie == null || !movie.IsInRelease)
         {
             _logger.LogError("Фильм не найден");
-            return MbResult<SessionEntity>.Failure("Фильм не найден");
+            return CustomResult<SessionEntity>.Failure("Фильм не найден");
         }
 
         var hall = await _hallRepository.GetByIdAsync(request.dto.HallId);
         if (hall == null)
         {
             _logger.LogError("Зал не найден");
-            return MbResult<SessionEntity>.Failure("Зал не найден");
+            return CustomResult<SessionEntity>.Failure("Зал не найден");
         }
         
         // Check cinema working hours
+        _logger.LogWarning($"Open start: {_options.OpeningTime}, Closing: {_options.ClosingTime}");
         var startTime = request.dto.StartTime.TimeOfDay;
         if (startTime < TimeSpan.Parse(_options.OpeningTime) ||
             startTime > TimeSpan.Parse(_options.ClosingTime).Add(TimeSpan.FromMinutes(-movie.Duration)))
         {
             _logger.LogError("Время начала сеанса в нерабочем времене кинотеатра");
-            return MbResult<SessionEntity>.Failure("Время начала сеанса в нерабочем времене кинотеатра");
+            return CustomResult<SessionEntity>.Failure("Время начала сеанса в нерабочем времене кинотеатра");
         }
-        _logger.LogWarning($"Open start: {_options.OpeningTime}, Closing: {_options.ClosingTime}");
+        
         // Check for overlapping sessions
         var sessionEndTime = request.dto.StartTime.AddMinutes(movie.Duration + hall.TechnicalBreakDuration);
         var overlappingSessions = await _sessionRepository.GetOverlappingSessionsAsync(
@@ -60,7 +61,7 @@ public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand,
         if (overlappingSessions.Any(s => s.IsActive))
         {
             _logger.LogError("Сеанс пересекается с существующим активным сеансом");
-            return MbResult<SessionEntity>.Failure("Сеанс пересекается с существующим активным сеансом");
+            return CustomResult<SessionEntity>.Failure("Сеанс пересекается с существующим активным сеансом");
         }
 
         var session = new SessionEntity
@@ -75,6 +76,6 @@ public class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand,
         
         _logger.LogInformation("Создание сессии");
         await _sessionRepository.AddAsync(session);
-        return MbResult<SessionEntity>.Success(session);
+        return CustomResult<SessionEntity>.Success(session);
     }
 }

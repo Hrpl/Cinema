@@ -45,6 +45,7 @@ public class MovieRepository : IMovieRepository
     public async Task<MovieEntity> UpdateAsync(MovieEntity movie)
     {
         _context.Movie.Update(movie);
+        await _context.SaveChangesAsync();
         return movie;
     }
 }

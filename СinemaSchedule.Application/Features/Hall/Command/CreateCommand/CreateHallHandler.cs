@@ -7,7 +7,7 @@ using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.Hall.Command.CreateCommand;
 
-public class CreateHallHandler : IRequestHandler<CreateHallCommand, MbResult<HallEntity>>
+public class CreateHallHandler : IRequestHandler<CreateHallCommand, CustomResult<HallEntity>>
 {
     private readonly IHallRepository _hallRepository;
     private readonly ILogger<CreateHallHandler> _logger;
@@ -20,7 +20,7 @@ public class CreateHallHandler : IRequestHandler<CreateHallCommand, MbResult<Hal
         _logger = logger;
     }
 
-    public async Task<MbResult<HallEntity>> Handle(CreateHallCommand request, CancellationToken cancellationToken)
+    public async Task<CustomResult<HallEntity>> Handle(CreateHallCommand request, CancellationToken cancellationToken)
     {
         var hall = new HallEntity()
         {
@@ -33,12 +33,12 @@ public class CreateHallHandler : IRequestHandler<CreateHallCommand, MbResult<Hal
         {
             _logger.LogInformation("Создание зала");
             await _hallRepository.AddAsync(hall);
-            return MbResult<HallEntity>.Success(hall);
+            return CustomResult<HallEntity>.Success(hall);
         }
         catch (Exception ex)
         {
             _logger.LogError($"Ошибка при создании зала ex: {ex.Message}");
-            return MbResult<HallEntity>.Failure("Ошибка при создании зала");
+            return CustomResult<HallEntity>.Failure("Ошибка при создании зала");
         }
     }
 }

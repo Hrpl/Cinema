@@ -11,6 +11,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
 builder.Services.Configure<WorkTimeOptions>(builder.Configuration);
+builder.Services.Configure<WorkTimeOptions>(opt =>
+{
+    opt.OpeningTime = "7:00";
+    opt.ClosingTime = "23:00";
+});
 builder.Services.AddInfrastructure();
 builder.Services.AddApplication();
 builder.Services.AddControllers();

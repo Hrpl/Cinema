@@ -6,7 +6,7 @@ using СinemaSchedule.Domen.Interfaces;
 
 namespace СinemaSchedule.Application.Features.SessionPriceOverride.Query.GetByIdPriceOverride;
 
-public class GetByIdPriceOverrideHandler : IRequestHandler<GetByIdPriceOverrideQuery, MbResult<SessionPriceOverrideDto>>
+public class GetByIdPriceOverrideHandler : IRequestHandler<GetByIdPriceOverrideQuery, CustomResult<SessionPriceOverrideDto>>
 {
     private readonly ISessionPriceOverrideRepository _priceOverrideRepository;
     private readonly IMapper _mapper;
@@ -23,17 +23,17 @@ public class GetByIdPriceOverrideHandler : IRequestHandler<GetByIdPriceOverrideQ
         _logger = logger;
     }
 
-    public async Task<MbResult<SessionPriceOverrideDto>> Handle(GetByIdPriceOverrideQuery request, CancellationToken cancellationToken)
+    public async Task<CustomResult<SessionPriceOverrideDto>> Handle(GetByIdPriceOverrideQuery request, CancellationToken cancellationToken)
     {
         var model = await _priceOverrideRepository.GetByIdAsync(request.Id);
         if (model == null)
         {
             _logger.LogError("Сущность не найдена в базе данных");
-            return MbResult<SessionPriceOverrideDto>.Failure("Запись не найдена");
+            return CustomResult<SessionPriceOverrideDto>.Failure("Запись не найдена");
         }
         var result = _mapper.Map<SessionPriceOverrideDto>(model);
 
-        return MbResult<SessionPriceOverrideDto>.Success(result);
+        return CustomResult<SessionPriceOverrideDto>.Success(result);
 
     }
 }
