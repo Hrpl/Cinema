@@ -8,7 +8,7 @@ using СinemaSchedule.Application.Features.Session.Query.GetSession;
 namespace СinemaSchedule.API.Controllers;
 
 [ApiController]
-[Route("api/session")]
+[Route("api/sessions")]
 public class SessionController : Controller
 {
     private readonly IMediator _mediator;
@@ -39,8 +39,8 @@ public class SessionController : Controller
     [HttpGet]
     [SwaggerOperation(
         Tags = new[] { "Session" },
-        Summary = "Получение сессии",
-        Description = "Возвращает отсортированный массив сессий"
+        Summary = "Получение сеансов",
+        Description = "Возвращает отсортированный массив сеансов"
     )]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

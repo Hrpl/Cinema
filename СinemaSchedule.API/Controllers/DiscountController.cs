@@ -7,7 +7,7 @@ using СinemaSchedule.Application.Features.SessionPriceOverride.Command;
 namespace СinemaSchedule.API.Controllers;
 
 [ApiController]
-[Route("api/discount")]
+[Route("api/discounts")]
 public class DiscountController : Controller
 {
     private readonly IMediator _mediator;

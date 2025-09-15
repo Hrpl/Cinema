@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace СinemaSchedule.Application.Features.Movies.Commands.CreateMovie;
 
 public class CreateMovieDto
@@ -6,6 +8,6 @@ public class CreateMovieDto
     public short ReleaseYear { get; set; }
     public short Duration { get; set; }
     public string AgeLimit { get; set; }
-    public string PosterUrl { get; set; } = string.Empty;
+    public IFormFile Poster { get; set; } 
     public List<int> GenreIds { get; set; } = new();
 }

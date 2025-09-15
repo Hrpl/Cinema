@@ -1,4 +1,5 @@
 using System.Reflection;
+using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,7 @@ public static class DependencyInjection
         
         TypeAdapterConfig config = TypeAdapterConfig.GlobalSettings;
         config.Scan(Assembly.GetExecutingAssembly());
-
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         Mapper mapperConf = new(config);
         services.AddSingleton<IMapper>(mapperConf);
         

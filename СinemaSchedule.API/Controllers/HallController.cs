@@ -7,7 +7,7 @@ using СinemaSchedule.Application.Features.Movies.Commands.CreateMovie;
 namespace СinemaSchedule.API.Controllers;
 
 [ApiController]
-[Route("api/hall")]
+[Route("api/halls")]
 public class HallController : Controller
 {
     private readonly IMediator _mediator;

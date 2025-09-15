@@ -1,5 +1,6 @@
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using СinemaSchedule.Application.Features.Movies.Commands.CreateMovie;
 using СinemaSchedule.Domen.Entities;
@@ -36,14 +37,14 @@ public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, Cus
             _logger.LogError($"Невеверные Id жанров {request.dto.GenreIds}");
             return CustomResult<MovieEntity>.Failure("Невеверные Id жанров");
         }
-
+        var byteFile = await ConvertFileToBase64Async(request.dto.Poster);
         var movie = new MovieEntity()
         {
             Title = request.dto.Title,
             ReleaseYear = request.dto.ReleaseYear,
             Duration = request.dto.Duration,
             AgeLimit = request.dto.AgeLimit,
-            Poster = request.dto.PosterUrl,
+            Poster = byteFile,
             IsInRelease = true
         };
 
@@ -64,4 +65,15 @@ public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, Cus
             return CustomResult<MovieEntity>.Failure("Ошибка при создании нового фильма");
         }
     }
+    
+    private async Task<string> ConvertFileToBase64Async(IFormFile file)
+    {
+        using (var memoryStream = new MemoryStream())
+        {
+            await file.CopyToAsync(memoryStream);
+            byte[] fileBytes = memoryStream.ToArray();
+            return Convert.ToBase64String(fileBytes);
+        }
+    }
+ 
 }

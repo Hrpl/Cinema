@@ -1,3 +1,7 @@
+using System.Reflection;
+using FluentValidation;
+using MediatR;
+using СinemaSchedule.API.Behaviors;
 using СinemaSchedule.API.Middlewares;
 using СinemaSchedule.Extensions;
 using СinemaSchedule.Application.Extensions;
@@ -19,7 +23,19 @@ builder.Services.Configure<WorkTimeOptions>(opt =>
 builder.Services.AddInfrastructure();
 builder.Services.AddApplication();
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationServices();
 
+// Добавляем все валидаторы из сборки
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+// Регистрируем поведение валидации
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+// Регистрируем MediatR
+builder.Services.AddMediatR(cfg => 
+{
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+});
 builder.AddOpenAPI();
 
 builder.Services.AddEndpointsApiExplorer();
